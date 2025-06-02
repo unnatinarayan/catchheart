@@ -1,256 +1,350 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catch the Hearts 💖 🧸Unnati & Rikesh</title>
-    <style>
-        body {
-            margin: 0;
-            background: url('https://www.transparenttextures.com/patterns/utopia.png'), linear-gradient(to top, #ffe6f0, #ffccdd);
-            overflow: hidden;
-            font-family: 'Comic Sans MS', cursive;
-            text-align: center;
-            background-size: cover;
-            height: 100vh; /* Ensure full viewport height */
-        }
-        h1 {
-            margin-top: 20px;
-        }
-        #score {
-            font-size: 20px;
-            color: #c00918;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        #gameCanvas {
-            border: 4px solid #ba0808;
-            background-color: #fff0f5;
-            display: block;
-            margin: 20px auto;
-            max-width: 95%; /* Further adjust canvas width */
-            height: auto; /* Maintain aspect ratio */
-        }
-        footer {
-            position: fixed; /* Stick to the bottom */
-            bottom: 0;
-            width: 100%;
-            font-size: 14px;
-            color: #d70606;
-            padding: 10px 0;
-            background-color: rgba(255, 255, 255, 0.8); /* Optional background for better readability */
-        }
-        .floating-heart {
-            position: absolute;
-            animation: float 6s ease-in-out infinite;
-            opacity: 0.6;
-            user-select: none; /* Prevent text selection on tap */
-        }
-        @keyframes float {
-            0% {
-                transform: translateY(100vh) scale(0.5);
-            }
-            100% {
-                transform: translateY(-10vh) scale(1.2);
-            }
-        }
-        /* Styles for touch controls */
-        .controls {
-            position: absolute;
-            bottom: 0; /* Move buttons to the very bottom */
-            left: 0;
-            width: 100%;
-            display: flex;
-            justify-content: space-around;
-            background-color: rgba(255, 255, 255, 0.5); /* Add a semi-transparent background */
-            padding: 10px 0; /* Add some padding */
-        }
-        .control-button {
-            background-color: #ff6699;
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 10px;
-            font-size: 18px;
-            cursor: pointer;
-            opacity: 0.7;
-            user-select: none;
-            margin: 5px; /* Add some margin around buttons */
-        }
-        .control-button:active {
-            opacity: 0.9;
-        }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Catch the Hearts 💖 Unnati & Rikesh</title>
+<style>
+  /* Base and responsive layout */
+  body {
+    margin: 0;
+    padding: 10px;
+    font-family: 'Comic Sans MS', cursive;
+    background: linear-gradient(to top, #ffe6f0, #ffccdd);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  h1 {
+    font-size: 1.8rem;
+    color: #ff3366;
+    margin-bottom: 8px;
+  }
+
+  #gameContainer {
+    width: 100%;
+    max-width: 360px;
+    background: #fff0f5;
+    border: 3px solid #ff6699;
+    border-radius: 15px;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+
+  canvas {
+    display: block;
+    margin: 0 auto;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 2 / 3;
+    background-color: #fff0f5;
+    border-radius: 10px;
+  }
+
+  #score, #highScore {
+    font-size: 1.2rem;
+    color: #ff3366;
+    font-weight: bold;
+    text-align: center;
+    margin: 6px 0 4px;
+  }
+
+  #pauseBtn, .message-btn {
+    background-color: #ff99cc;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 8px 14px;
+    margin: 6px 4px;
+    flex: 1 1 40%;
+    max-width: 160px;
+    transition: background-color 0.3s ease;
+  }
+  #pauseBtn:hover, .message-btn:hover {
+    background-color: #ff66aa;
+  }
+
+  #controls {
+    display: flex;
+    justify-content: center;
+    margin-top: 12px;
+    gap: 15px;
+  }
+
+  .touch-btn {
+    flex: 1 1 40%;
+    max-width: 140px;
+    height: 44px;
+    font-size: 1.3rem;
+    background-color: #ff99cc;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.3s ease;
+  }
+  .touch-btn:hover {
+    background-color: #ff66aa;
+  }
+
+  #messageSection {
+    margin-top: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  /* Background hearts */
+  .background-heart {
+    position: fixed;
+    color: #ffb6c1;
+    font-size: 18px;
+    user-select: none;
+    animation: float 12s linear infinite;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  @keyframes float {
+    0% {
+      transform: translateY(100vh) scale(0.5);
+      opacity: 0;
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(-10vh) scale(1);
+      opacity: 0;
+    }
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 400px) {
+    h1 {
+      font-size: 1.5rem;
+    }
+    #pauseBtn, .message-btn {
+      font-size: 0.9rem;
+      padding: 7px 10px;
+      max-width: 140px;
+    }
+    .touch-btn {
+      font-size: 1.1rem;
+      max-width: 120px;
+      height: 40px;
+    }
+  }
+</style>
 </head>
 <body>
 
 <h1>Catch the Hearts 💖</h1>
-<p id="score">Score: 0</p>
-<canvas id="gameCanvas"></canvas>
 
-<div class="controls">
-    <button class="control-button" id="leftBtn">Left</button>
-    <button class="control-button" id="rightBtn">Right</button>
+<div id="gameContainer">
+  <div style="text-align:center;">
+    <button id="pauseBtn">⏸ Pause Game</button>
+    <p id="score">Score: 0</p>
+    <p id="highScore">High Score: 0</p>
+  </div>
+
+  <canvas id="gameCanvas" width="400" height="600"></canvas>
+
+  <div id="controls">
+    <button class="touch-btn" id="leftBtn">⬅️</button>
+    <button class="touch-btn" id="rightBtn">➡️</button>
+  </div>
+
+  <div id="messageSection">
+    <button class="message-btn" id="sendMessageToRikesh">Send Message to Rikesh 💌</button>
+    <button class="message-btn" id="sendMessageToUnnati">Send Message to Unnati 💌</button>
+  </div>
 </div>
 
-<footer>
-    Made with 💖 by Naar for Piggy 🐷
-</footer>
-
 <script>
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
-    const scoreDisplay = document.getElementById("score");
+  const canvas = document.getElementById("gameCanvas");
+  const ctx = canvas.getContext("2d");
 
-    // Set canvas dimensions based on screen size
-    canvas.width = Math.min(400, window.innerWidth - 20); // Adjust width with a bit less padding
-    canvas.height = Math.min(600, window.innerHeight * 0.7); // Adjust height dynamically
+  const pauseBtn = document.getElementById("pauseBtn");
+  const scoreDisplay = document.getElementById("score");
+  const highScoreDisplay = document.getElementById("highScore");
 
-    let player = {
-        x: canvas.width / 2 - (80 * (canvas.width / 400)) / 2, // Center player
-        y: canvas.height - (20 * (canvas.height / 600)) - 10, // Adjust position from bottom
-        width: 80 * (canvas.width / 400), // Scale player width
-        height: 20 * (canvas.height / 600), // Scale player height
-        speed: 8 * Math.min(canvas.width / 400, canvas.height / 600) // Scale speed slightly higher for touch
+  const leftBtn = document.getElementById("leftBtn");
+  const rightBtn = document.getElementById("rightBtn");
+
+  const sendMessageToRikesh = document.getElementById("sendMessageToRikesh");
+  const sendMessageToUnnati = document.getElementById("sendMessageToUnnati");
+
+  let isPaused = false;
+  let player = {
+    x: 160,
+    y: 550,
+    width: 80,
+    height: 20,
+    speed: 6
+  };
+
+  let hearts = [];
+  let score = 0;
+  let highScore = localStorage.getItem("catchHeartsHighScore") || 0;
+
+  highScoreDisplay.innerText = `High Score: ${highScore}`;
+
+  pauseBtn.addEventListener("click", () => {
+    isPaused = !isPaused;
+    pauseBtn.innerText = isPaused ? "▶️ Resume Game" : "⏸ Pause Game";
+    if (!isPaused) gameLoop();
+  });
+
+  leftBtn.addEventListener("touchstart", () => keys["ArrowLeft"] = true);
+  rightBtn.addEventListener("touchstart", () => keys["ArrowRight"] = true);
+  leftBtn.addEventListener("touchend", () => keys["ArrowLeft"] = false);
+  rightBtn.addEventListener("touchend", () => keys["ArrowRight"] = false);
+
+  function createHeart() {
+    if (isPaused) return;
+    const x = Math.random() * (canvas.width - 30);
+    hearts.push({ x: x, y: 0, size: 30, speed: 2 + Math.random() * 2 });
+  }
+
+  function drawPlayer() {
+    ctx.fillStyle = "#ff6699";
+    ctx.fillRect(player.x, player.y, player.width, player.height);
+  }
+
+  function drawHeart(h) {
+    ctx.font = `${h.size}px Arial`;
+    ctx.fillText("💖", h.x, h.y + h.size / 2);
+  }
+
+  function moveHearts() {
+    hearts.forEach(h => h.y += h.speed);
+  }
+
+  function showScoreMessage(score) {
+    const messages = {
+      10: "Aww! You're catching my heart 💗",
+      20: "You're the king 👑💖",
+      30: "Only you could do this!💖 Go remind your Naar you love her!",
+      40: "My heart is already yours 💖",
+      50: "Halfway there! I am watching 😍",
+      60: "You're a heart-catching pro 💘",
+      70: "Come, I will give you one kissie. 😍",
+      80: "You're making me blush now 😚",
+      90: "STOP being this cute 😤💗",
+      100: "Now come and hug me it's been so many months' 💖🎉"
     };
-
-    let hearts = [];
-    let score = 0;
-
-    function createHeart() {
-        const size = 30 * Math.min(canvas.width / 400, canvas.height / 600);
-        const x = Math.random() * (canvas.width - size);
-        hearts.push({ x: x, y: 0, size: size, speed: 2 + Math.random() * 2 });
+    if (messages[score]) {
+      setTimeout(() => alert(messages[score]), 100);
     }
+  }
 
-    function drawPlayer() {
-        ctx.fillStyle = "#ff6699";
-        ctx.fillRect(player.x, player.y, player.width, player.height);
-    }
-
-    function drawHeart(h) {
-        ctx.font = `${h.size}px Arial`;
-        ctx.fillText("💖 🧸", h.x, h.y);
-    }
-
-    function moveHearts() {
-        hearts.forEach(h => h.y += h.speed);
-    }
-
-    function checkCollision() {
-        hearts = hearts.filter(h => {
-            const caught = h.y + h.size > player.y &&
-                           h.x > player.x &&
-                           h.x < player.x + player.width;
-            if (caught) {
-                score++;
-                scoreDisplay.innerText = `Score: ${score}`;
-
-                if (score === 10) {
-                    alert("Aww! You're catching my heart 💗");
-                }
-                if (score === 20) {
-                    alert("You're the king of my heart 👑💖");
-                }
-                if (score === 30) {
-                    alert("Only my Piggy could do this! 💖");
-                    setTimeout(() => {
-                        alert("Go and remind your Naar that you love her 😘💖");
-                    }, 1000);
-                }
-                if (score === 40) {
-                    alert("Naar's heart is already yours 💘");
-                }
-                if (score === 50) {
-                    alert("Okay now STOP. Take Naar out on a date already! 😘🍕🎉");
-                }
-            }
-            return h.y < canvas.height && !caught;
-        });
-    }
-
-    let keys = {};
-    document.addEventListener("keydown", e => keys[e.key] = true);
-    document.addEventListener("keyup", e => keys[e.key] = false);
-
-    function movePlayerKeyboard() {
-        if (keys["ArrowLeft"] && player.x > 0) player.x -= player.speed;
-        if (keys["ArrowRight"] && player.x < canvas.width - player.width) player.x += player.speed;
-    }
-
-    // Touch controls on canvas
-    let touchStartX = null;
-    canvas.addEventListener("touchstart", (e) => {
-        touchStartX = e.touches[0].clientX;
-    }, { passive: true });
-
-    canvas.addEventListener("touchmove", (e) => {
-        if (touchStartX === null) return;
-
-        const touchX = e.touches[0].clientX;
-        const deltaX = touchX - touchStartX;
-
-        player.x += deltaX;
-
-        // Keep player within bounds
-        if (player.x < 0) player.x = 0;
-        if (player.x > canvas.width - player.width) player.x = canvas.width - player.width;
-
-        touchStartX = touchX;
-    }, { passive: true });
-
-    canvas.addEventListener("touchend", () => {
-        touchStartX = null;
-    }, { passive: true });
-
-    // Alternative touch buttons (can be used alongside or instead of canvas touch)
-    const leftBtn = document.getElementById("leftBtn");
-    const rightBtn = document.getElementById("rightBtn");
-
-    let touchMoveLeft = false;
-    let touchMoveRight = false;
-
-    leftBtn.addEventListener("touchstart", () => { touchMoveLeft = true; }, { passive: true });
-    leftBtn.addEventListener("touchend", () => { touchMoveLeft = false; }, { passive: true });
-    rightBtn.addEventListener("touchstart", () => { touchMoveRight = true; }, { passive: true });
-    rightBtn.addEventListener("touchend", () => { touchMoveRight = false; }, { passive: true });
-
-    function movePlayerTouchButtons() {
-        if (touchMoveLeft && player.x > 0) player.x -= player.speed;
-        if (touchMoveRight && player.x < canvas.width - player.width) player.x += player.speed;
-    }
-
-    function gameLoop() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        drawPlayer();
-        hearts.forEach(drawHeart);
-        moveHearts();
-        checkCollision();
-        movePlayerKeyboard(); // Keep keyboard controls
-        movePlayerTouchButtons(); // Handle button touch movement
-        requestAnimationFrame(gameLoop);
-    }
-
-    setInterval(createHeart, 800);
-
-    window.onload = function() {
-        alert("Welcome to Catch the Hearts 💖! Try to reach score 30 for a sweet surprise from your Naar 😘");
-        gameLoop();
-    };
-
-    function generateFloatingHearts() {
-        for (let i = 0; i < 20; i++) {
-            const heart = document.createElement("div");
-            heart.classList.add("floating-heart");
-            heart.innerText = "💖";
-            heart.style.left = `${Math.random() * 100}%`;
-            heart.style.fontSize = `${Math.random() * 24 + 20}px`;
-            heart.style.animationDuration = `${4 + Math.random() * 6}s`;
-            document.body.appendChild(heart);
+  function checkCollision() {
+    hearts = hearts.filter(h => {
+      const caught = h.y + h.size > player.y &&
+                     h.x + h.size / 2 > player.x &&
+                     h.x < player.x + player.width;
+      if (caught) {
+        score++;
+        scoreDisplay.innerText = `Score: ${score}`;
+        if (score > highScore) {
+          highScore = score;
+          localStorage.setItem("catchHeartsHighScore", highScore);
+          highScoreDisplay.innerText = `High Score: ${highScore}`;
         }
+        showScoreMessage(score);
+      }
+      return h.y < canvas.height && !caught;
+    });
+  }
+
+  let keys = {};
+  document.addEventListener("keydown", e => keys[e.key] = true);
+  document.addEventListener("keyup", e => keys[e.key] = false);
+
+  function movePlayer() {
+    if (isPaused) return;
+    if (keys["ArrowLeft"] && player.x > 0) player.x -= player.speed;
+    if (keys["ArrowRight"] && player.x < canvas.width - player.width) player.x += player.speed;
+  }
+
+  function gameLoop() {
+    if (isPaused) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawPlayer();
+    hearts.forEach(drawHeart);
+    moveHearts();
+    checkCollision();
+    movePlayer();
+    requestAnimationFrame(gameLoop);
+  }
+
+  // Floating animated hearts in background
+  function createBackgroundHearts() {
+    for (let i = 0; i < 15; i++) {
+      const heart = document.createElement("div");
+      heart.className = "background-heart";
+      heart.innerText = "💖";
+      heart.style.left = Math.random() * window.innerWidth + "px";
+      heart.style.animationDuration = 8 + Math.random() * 10 + "s";
+      heart.style.fontSize = 12 + Math.random() * 18 + "px";
+      heart.style.top = Math.random() * 100 + "vh";
+      document.body.appendChild(heart);
+      setTimeout(() => heart.remove(), 15000);
+    }
+  }
+  setInterval(createBackgroundHearts, 2500);
+
+  setInterval(() => {
+    if (!isPaused) createHeart();
+  }, 800);
+
+  setTimeout(() => {
+    alert("Score to unlock special messages from Naar 💌");
+  }, 500);
+
+  gameLoop();
+
+  // Messaging system
+
+  // Rikesh sends message to Naar
+  sendMessageToUnnati.addEventListener("click", () => {
+    const msg = prompt("Write a message for Unnati 💖:");
+    if (msg) {
+      localStorage.setItem("messageForUnnati", msg);
+      alert("Message sent to Unnati! 💝");
+    }
+  });
+
+  // Naar sends message to Rikesh
+  sendMessageToRikesh.addEventListener("click", () => {
+    const msg = prompt("Write a message for Rikesh 💖:");
+    if (msg) {
+      localStorage.setItem("messageForRikesh", msg);
+      alert("Message sent to Rikesh! 💘");
+    }
+  });
+
+  // Show stored messages on load
+  window.addEventListener("load", () => {
+    const msgForRikesh = localStorage.getItem("messageForRikesh");
+    if (msgForRikesh) {
+      alert("You have a message from Unnati 💌:\n\n" + msgForRikesh);
+      localStorage.removeItem("messageForRikesh");
     }
 
-    generateFloatingHearts();
+    const msgForUnnati = localStorage.getItem("messageForUnnati");
+    if (msgForUnnati) {
+      alert("You have a message from Rikesh 💌:\n\n" + msgForUnnati);
+      localStorage.removeItem("messageForUnnati");
+    }
+  });
 </script>
 
 </body>
